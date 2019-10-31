@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Starving</string>
+    <string name="location_permission_declined_message">You won\'t get everything from the app</string>
+    <string name="cant_detect_location">Can\'t detect your location. Please check that LocationService is turned on</string>
+    <string name="check_settings">Check settings</string>
+    <string name="location_is_unknown">Can\'t detect your location. Please, try one more time later</string>
+</resources>

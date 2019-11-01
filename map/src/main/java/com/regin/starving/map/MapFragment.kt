@@ -12,6 +12,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.clustering.ClusterItem
 import com.regin.starving.core.location.Location
 import com.regin.starving.core.location.LocationWithZoom
 import com.regin.starving.core.map.MapView
@@ -21,10 +22,16 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import com.google.maps.android.clustering.ClusterManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 
 @Suppress("EXPERIMENTAL_API_USAGE")
 class MapFragment : Fragment(R.layout.fragment_map), MapView {
+
+    private val markers = mutableSetOf<Marker>()
 
     private val googleMapFragment: SupportMapFragment by lazy {
         childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
@@ -32,17 +39,10 @@ class MapFragment : Fragment(R.layout.fragment_map), MapView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (savedInstanceState == null) {
-            childFragmentManager.beginTransaction()
-                .replace(R.id.mapView, SupportMapFragment.newInstance())
-                .commitNow()
-        }
-
         googleMapFragment.getMapAsync {
             it.setPadding(0, 100, 0, 0)
 
             it.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
-
                 override fun getInfoContents(marker: Marker): View {
                     val poi = marker.tag as Poi
 
@@ -61,17 +61,14 @@ class MapFragment : Fragment(R.layout.fragment_map), MapView {
         }
     }
 
-    override fun listenMap(): Flow<LocationWithZoom> {
+    override fun listenToMap(): Flow<LocationWithZoom> {
         return callbackFlow {
             googleMapFragment.getMapAsync { map ->
                 val listener = GoogleMap.OnCameraMoveListener {
                     with(map.cameraPosition) {
                         offer(
                             LocationWithZoom(
-                                location = Location(
-                                    target.latitude,
-                                    target.longitude
-                                ),
+                                location = Location(target.latitude, target.longitude),
                                 zoom = zoom
                             )
                         )
@@ -80,43 +77,41 @@ class MapFragment : Fragment(R.layout.fragment_map), MapView {
 
                 map.setOnCameraMoveListener(listener)
             }
-            awaitClose {}
+            awaitClose {
+                googleMapFragment.getMapAsync { it.setOnCameraMoveListener(null) }
+            }
         }
     }
 
-    override fun drawPois(pois: List<Poi>) {
-        googleMapFragment.getMapAsync {
-            it.clear()
-
-            val visiblePois = pois.filter { poi ->
-                val latLng = LatLng(poi.location.latitude, poi.location.longitude)
-                it.isMarkerVisible(latLng)
+    override fun listToPoiClick(): Flow<Poi> {
+        return callbackFlow {
+            googleMapFragment.getMapAsync {
+                it.setOnInfoWindowClickListener { marker ->
+                    offer(marker.tag as Poi)
+                }
             }
 
-            val poisToRender =
-                if (visiblePois.size <= MAXIMUM_MARKERS) visiblePois else visiblePois.subList(
-                    0,
-                    MAXIMUM_MARKERS
-                )
+            awaitClose {
+                googleMapFragment.getMapAsync { it.setOnInfoWindowClickListener(null) }
+            }
+        }
+    }
 
-            for (poi in poisToRender) {
-                val latLng = LatLng(poi.location.latitude, poi.location.longitude)
+    private val coroutineScope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
 
-                if (it.isMarkerVisible(latLng)) {
-                    val markerOptions = MarkerOptions()
-
-                    markerOptions.position(latLng)
-                    markerOptions.title(poi.name)
-                    markerOptions.icon(
-                        VectorDrawableBitmapDescriptor.decode(
-                            requireContext(),
-                            R.drawable.ic_restaurant
-                        )
-                    )
-
-                    val marker = it.addMarker(markerOptions)
-                    marker.tag = poi
+    override fun drawPois(pois: List<Poi>) {
+        googleMapFragment.getMapAsync { map ->
+            coroutineScope.launch {
+                for (poi in pois) {
+                    val markerOptions = buildMarker(poi)
+                    map.addMarker(markerOptions).apply {
+                        tag = poi
+                        markers.add(this)
+                    }
                 }
+
+                markers.filterNot { it.isMarkerVisible(map) }
+                    .forEach { it.remove() }
             }
         }
     }
@@ -126,19 +121,29 @@ class MapFragment : Fragment(R.layout.fragment_map), MapView {
             it.isMyLocationEnabled = true
             it.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(
-                    LatLng(
-                        location.latitude,
-                        location.longitude
-                    ), 12.0f
+                    LatLng(location.latitude, location.longitude), 12.0f
                 )
             )
         }
     }
 
-    private fun GoogleMap.isMarkerVisible(markerPosition: LatLng) =
-        projection.visibleRegion.latLngBounds.contains(markerPosition)
+    private fun buildMarker(poi: Poi): MarkerOptions {
+        val latLng = LatLng(poi.location.latitude, poi.location.longitude)
+
+        return MarkerOptions().apply {
+            position(latLng)
+            title(poi.name)
+            icon(
+                VectorDrawableBitmapDescriptor.decode(requireContext(), R.drawable.ic_restaurant)
+            )
+        }
+    }
+
+    private fun Marker.isMarkerVisible(map: GoogleMap) =
+        map.projection.visibleRegion.latLngBounds.contains(position)
 
     companion object {
-        private const val MAXIMUM_MARKERS = 200
+        private const val MARKERS_MAXIMUM_COUNT = 100
     }
+
 }

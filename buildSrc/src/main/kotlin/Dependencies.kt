@@ -1,6 +1,7 @@
 const val kotlinVersion = "1.3.50"
 const val coroutinesVersion = "1.3.2"
 const val koinVersion = "2.0.1"
+const val navigationVersion = "2.2.0-rc01"
 
 object BuildPlugins {
 
@@ -13,6 +14,8 @@ object BuildPlugins {
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     const val kotlinSerializationPlugin = "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
     const val jacocoGradlePlugin = "com.dicedmelon.gradle:jacoco-android:${Versions.jacocoAndroid}"
+    const val safeArgsPlugin =
+        "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
 
     const val androidLibrary = "com.android.library"
     const val kotlinSerialization = "kotlinx-serialization"
@@ -20,6 +23,7 @@ object BuildPlugins {
     const val kotlinAndroid = "kotlin-android"
     const val kotlinAndroidExtensions = "kotlin-android-extensions"
     const val jacoco = "jacoco-android"
+    const val safeArgs = "androidx.navigation.safeargs.kotlin"
 
 }
 
@@ -44,8 +48,6 @@ object Libraries {
 
         const val kotlinSerializationRuntime = "0.11.1"
 
-        const val navigation = "2.2.0-rc01"
-
         const val map = "17.0.0"
         const val mapUtil = "0.5"
         const val location = "17.0.0"
@@ -58,8 +60,8 @@ object Libraries {
     const val runtimePermission =
         "com.github.florent37:runtime-permission-kotlin:${Versions.runtimePermission}"
 
-    const val navigation = "androidx.navigation:navigation-fragment:${Versions.navigation}"
-    const val navigationKtx = "androidx.navigation:navigation-ui-ktx:${Versions.navigation}"
+    const val navigation = "androidx.navigation:navigation-fragment:$navigationVersion"
+    const val navigationKtx = "androidx.navigation:navigation-ui-ktx:$navigationVersion"
 
     const val koinCore = "org.koin:koin-core:$koinVersion"
     const val koinViewModel = "org.koin:koin-android-viewmodel:$koinVersion"

@@ -8,6 +8,7 @@ buildscript {
     dependencies {
         classpath(BuildPlugins.androidGradlePlugin)
         classpath(BuildPlugins.kotlinGradlePlugin)
+        classpath(BuildPlugins.safeArgsPlugin)
         classpath(BuildPlugins.kotlinSerializationPlugin)
         classpath(BuildPlugins.jacocoGradlePlugin)
     }

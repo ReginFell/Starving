@@ -10,6 +10,8 @@ interface MapView {
 
     fun drawPois(pois: List<Poi>)
 
-    fun listenMap(): Flow<LocationWithZoom>
+    fun listenToMap(): Flow<LocationWithZoom>
+
+    fun listToPoiClick(): Flow<Poi>
 
 }

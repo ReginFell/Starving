@@ -20,6 +20,9 @@ dependencies {
     implementation(Libraries.appCompat)
     implementation(Libraries.material)
 
+    implementation(Libraries.lifecycleKtx)
+    implementation(Libraries.lifecycle)
+
     implementation(Libraries.coroutines)
 
     implementation(Libraries.map)

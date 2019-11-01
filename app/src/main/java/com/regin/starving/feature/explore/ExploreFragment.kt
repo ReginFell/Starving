@@ -8,11 +8,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import com.github.florent37.runtimepermission.kotlin.PermissionException
 import com.github.florent37.runtimepermission.kotlin.coroutines.experimental.askPermission
 import com.google.android.material.snackbar.Snackbar
 import com.regin.starving.R
 import com.regin.starving.core.map.MapView
+import com.regin.starving.feature.poidetails.PoiDetailsFragmentArgs
 import kotlinx.android.synthetic.main.fragment_explore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.debounce
@@ -57,9 +59,20 @@ class ExploreFragment : Fragment(R.layout.fragment_explore) {
             .onEach { react(it) }
             .launchIn(lifecycleScope)
 
-        mapView.listenMap()
+        mapView.listenToMap()
             .debounce(250L)
             .onEach { viewModel.dispatchEvent(Event.LoadPoi(it)) }
+            .launchIn(lifecycleScope)
+
+        mapView.listToPoiClick()
+            .debounce(250L)
+            .onEach {
+                val directions = PoiDetailsFragmentArgs(it).toBundle()
+                view?.findNavController()?.navigate(
+                    R.id.action_exploreFragment_to_poiDetailsFragment,
+                    directions
+                )
+            }
             .launchIn(lifecycleScope)
     }
 

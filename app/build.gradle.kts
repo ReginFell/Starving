@@ -4,6 +4,7 @@ import com.android.build.gradle.internal.tasks.JacocoTask
 plugins {
     id(BuildPlugins.androidApplication)
     id(BuildPlugins.kotlinAndroid)
+    id(BuildPlugins.safeArgs)
     id(BuildPlugins.jacoco)
     id(BuildPlugins.kotlinAndroidExtensions)
     id(BuildPlugins.kotlinSerialization)

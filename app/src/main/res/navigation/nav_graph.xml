@@ -9,6 +9,20 @@
         android:id="@+id/exploreFragment"
         android:name="com.regin.starving.feature.explore.ExploreFragment"
         android:label="Blank"
-        tools:layout="@layout/fragment_explore" />
+        tools:layout="@layout/fragment_explore">
+        <action
+            android:id="@+id/action_exploreFragment_to_poiDetailsFragment"
+            app:destination="@id/poiDetailsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/poiDetailsFragment"
+        android:name="com.regin.starving.feature.poidetails.PoiDetailsFragment"
+        tools:layout="@layout/fragment_poi_details">
+
+        <argument
+            android:name="poi"
+            app:argType="com.regin.starving.core.map.Poi" />
+    </fragment>
 
 </navigation>

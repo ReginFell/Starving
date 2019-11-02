@@ -21,6 +21,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
@@ -40,7 +41,9 @@ class ExploreFragment : BaseFragment(R.layout.fragment_explore) {
         super.onCreate(savedInstanceState)
         loadKoinModules(exploreModule)
 
-        loadMyLocation()
+        lifecycleScope.launchWhenCreated {
+            loadMyLocation()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -92,7 +95,7 @@ class ExploreFragment : BaseFragment(R.layout.fragment_explore) {
     }
 
     private fun loadMyLocation() {
-        lifecycleScope.launchWhenCreated {
+        viewScope.launch {
             try {
                 askPermission()
                 viewModel.dispatchEvent(Event.LoadMyLocation)

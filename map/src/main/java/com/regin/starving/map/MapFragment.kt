@@ -16,7 +16,6 @@ import com.regin.starving.core.location.Location
 import com.regin.starving.core.location.LocationWithZoom
 import com.regin.starving.core.map.MapView
 import com.regin.starving.core.map.Poi
-import com.google.maps.android.clustering.algo.NonHierarchicalViewBasedAlgorithm
 import com.regin.starving.map.utils.VectorDrawableBitmapDescriptor
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +40,7 @@ class MapFragment : Fragment(R.layout.fragment_map), MapView {
                 clusterManager = ClusterManager<PoiClusterItem>(requireContext(), it).apply {
                     renderer = DefaultClusterRenderer<PoiClusterItem>(requireContext(), it, this)
                     algorithm = NonHierarchicalDistanceBasedAlgorithm<PoiClusterItem>()
+                    it.setOnCameraIdleListener(this)
                 }
             }
         }

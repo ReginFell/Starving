@@ -6,7 +6,6 @@ import android.provider.Settings
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.github.florent37.runtimepermission.kotlin.PermissionException
@@ -14,6 +13,7 @@ import com.github.florent37.runtimepermission.kotlin.coroutines.experimental.ask
 import com.google.android.material.snackbar.Snackbar
 import com.regin.starving.R
 import com.regin.starving.core.map.MapView
+import com.regin.starving.core.ui.BaseFragment
 import com.regin.starving.feature.poidetails.PoiDetailsFragmentArgs
 import kotlinx.android.synthetic.main.fragment_explore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,9 +23,10 @@ import kotlinx.coroutines.flow.onEach
 import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
+import java.util.concurrent.TimeUnit
 
 @ExperimentalCoroutinesApi
-class ExploreFragment : Fragment(R.layout.fragment_explore) {
+class ExploreFragment : BaseFragment(R.layout.fragment_explore) {
 
     private val viewModel by viewModel<ExploreViewModel>()
 
@@ -51,21 +52,16 @@ class ExploreFragment : Fragment(R.layout.fragment_explore) {
     override fun onResume() {
         super.onResume()
 
-        viewModel.viewState
-            .onEach { render(it) }
-            .launchIn(lifecycleScope)
-
-        viewModel.sideEffects
-            .onEach { react(it) }
-            .launchIn(lifecycleScope)
+        observeViewState()
+        observeSideEffects()
 
         mapView.listenToMap()
-            .debounce(250L)
+            .debounce(TimeUnit.SECONDS.toMillis(1))
             .onEach { viewModel.dispatchEvent(Event.LoadPoi(it)) }
-            .launchIn(lifecycleScope)
+            .launchIn(viewScope)
 
-        mapView.listToPoiClick()
-            .debounce(250L)
+        mapView.listenToPoiClick()
+            .debounce(TimeUnit.MILLISECONDS.toMillis(250))
             .onEach {
                 val directions = PoiDetailsFragmentArgs(it).toBundle()
                 view?.findNavController()?.navigate(
@@ -73,12 +69,24 @@ class ExploreFragment : Fragment(R.layout.fragment_explore) {
                     directions
                 )
             }
-            .launchIn(lifecycleScope)
+            .launchIn(viewScope)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unloadKoinModules(exploreModule)
+    }
+
+    private fun observeViewState() {
+        viewModel.viewState
+            .onEach { render(it) }
+            .launchIn(viewScope)
+    }
+
+    private fun observeSideEffects() {
+        viewModel.sideEffects
+            .onEach { react(it) }
+            .launchIn(viewScope)
     }
 
     private fun loadMyLocation() {
@@ -98,9 +106,9 @@ class ExploreFragment : Fragment(R.layout.fragment_explore) {
 
     private fun render(viewState: ExploreViewState) {
         if (viewState.isLoading) {
-            progress.show()
+            progress.visibility = View.VISIBLE
         } else {
-            progress.hide()
+            progress.visibility = View.GONE
         }
         mapView.drawPois(viewState.pois.toList())
     }

@@ -12,6 +12,6 @@ interface MapView {
 
     fun listenToMap(): Flow<LocationWithZoom>
 
-    fun listToPoiClick(): Flow<Poi>
+    fun listenToPoiClick(): Flow<Poi>
 
 }

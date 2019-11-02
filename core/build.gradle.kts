@@ -15,6 +15,7 @@ android {
 dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.coroutines)
+    implementation(Libraries.appCompat)
 
     implementation(Libraries.lifecycle)
 

@@ -11,7 +11,7 @@ interface Api {
         @Query("ll") location: String,
         @Query("radius") radius: Double,
         @Query("categoryId") categoryIds: List<String>,
-        @Query("limit") limit: Int = 50,
+        @Query("limit") limit: Int = 10,
         @Query("intent") intent: String = "browse"
     ): PoiResponse
 

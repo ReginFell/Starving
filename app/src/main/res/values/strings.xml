@@ -4,4 +4,5 @@
     <string name="cant_detect_location">Can\'t detect your location. Please check that LocationService is turned on</string>
     <string name="check_settings">Check settings</string>
     <string name="location_is_unknown">Can\'t detect your location. Please, try one more time later</string>
+    <string name="poi_details">Poi information</string>
 </resources>

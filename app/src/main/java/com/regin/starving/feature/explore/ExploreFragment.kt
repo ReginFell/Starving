@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.github.florent37.runtimepermission.kotlin.PermissionException
 import com.github.florent37.runtimepermission.kotlin.coroutines.experimental.askPermission
 import com.google.android.material.snackbar.Snackbar
@@ -17,6 +17,7 @@ import com.regin.starving.core.ui.BaseFragment
 import com.regin.starving.feature.poidetails.PoiDetailsFragmentArgs
 import kotlinx.android.synthetic.main.fragment_explore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -26,6 +27,7 @@ import org.koin.core.context.unloadKoinModules
 import java.util.concurrent.TimeUnit
 
 @ExperimentalCoroutinesApi
+@UseExperimental(FlowPreview::class)
 class ExploreFragment : BaseFragment(R.layout.fragment_explore) {
 
     private val viewModel by viewModel<ExploreViewModel>()
@@ -64,7 +66,7 @@ class ExploreFragment : BaseFragment(R.layout.fragment_explore) {
             .debounce(TimeUnit.MILLISECONDS.toMillis(250))
             .onEach {
                 val directions = PoiDetailsFragmentArgs(it).toBundle()
-                view?.findNavController()?.navigate(
+                findNavController(this).navigate(
                     R.id.action_exploreFragment_to_poiDetailsFragment,
                     directions
                 )

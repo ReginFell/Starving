@@ -32,10 +32,12 @@ class MapFragment : Fragment(R.layout.fragment_map), MapView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         googleMapFragment.getMapAsync {
-            clusterManager = ClusterManager<PoiClusterItem>(requireContext(), it).apply {
-                renderer = DefaultClusterRenderer<PoiClusterItem>(requireContext(), it, this)
+            it.setPadding(0, 100, 0, 0)
 
-                it.setOnMarkerClickListener(this)
+            if (clusterManager == null) {
+                clusterManager = ClusterManager<PoiClusterItem>(requireContext(), it).apply {
+                    renderer = DefaultClusterRenderer<PoiClusterItem>(requireContext(), it, this)
+                }
             }
         }
     }
@@ -65,10 +67,11 @@ class MapFragment : Fragment(R.layout.fragment_map), MapView {
     override fun listenPoiClicks(): Flow<Poi> {
         return callbackFlow {
             googleMapFragment.getMapAsync {
-                it.setOnInfoWindowClickListener(clusterManager)
-                clusterManager?.setOnClusterItemInfoWindowClickListener {
-                    offer(it.poi)
+                clusterManager?.setOnClusterItemInfoWindowClickListener { clusterItem ->
+                    offer(clusterItem.poi)
                 }
+                it.setOnInfoWindowClickListener(clusterManager)
+                it.setOnMarkerClickListener(clusterManager)
             }
 
             awaitClose {

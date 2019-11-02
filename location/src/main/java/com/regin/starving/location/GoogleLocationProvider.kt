@@ -34,9 +34,9 @@ class GoogleLocationProvider(context: Context) : LocationProvider {
                         client.requestLocationUpdates(locationRequest, object : LocationCallback() {
                             override fun onLocationAvailability(locationAvailability: LocationAvailability) {
                                 if (!locationAvailability.isLocationAvailable) {
-                                    continuation.resumeWithException(LocationServiceIsNotAvailableException())
-                                } else {
-                                    continuation.resumeWithException(LocationIsNotAvailableException())
+                                    continuation.resumeWithException(
+                                        LocationServiceIsNotAvailableException()
+                                    )
                                 }
                             }
 
@@ -53,7 +53,7 @@ class GoogleLocationProvider(context: Context) : LocationProvider {
                         )
                     }
                 } else {
-                    continuation.resumeWithException(LocationServiceIsNotAvailableException())
+                    continuation.resumeWithException(LocationIsNotAvailableException())
                 }
             }
 

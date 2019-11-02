@@ -1,5 +1,6 @@
 import com.android.build.gradle.internal.dsl.TestOptions
 import com.android.build.gradle.internal.tasks.JacocoTask
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
 
 plugins {
     id(BuildPlugins.androidApplication)
@@ -42,6 +43,11 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+
+    kotlinOptions {
+        val options = this as KotlinJvmOptions
+        options.jvmTarget = "1.8"
     }
 
     compileOptions {
@@ -95,6 +101,7 @@ dependencies {
     testImplementation(Testing.coroutinesTest)
     testImplementation(Testing.koinTest)
     testImplementation(Testing.junit)
+    testImplementation(Testing.junitParams)
     testImplementation(Testing.junitEngine)
     testImplementation(Testing.mockito)
     testImplementation(Testing.mockitoKotlin)
@@ -102,7 +109,7 @@ dependencies {
 }
 
 jacoco {
-    toolVersion = "0.8.3"
+    toolVersion = "0.8.4"
 }
 
 tasks.withType<Test> {

@@ -7,12 +7,12 @@ import com.regin.starving.core.location.LocationIsNotAvailableException
 import com.regin.starving.core.location.LocationProvider
 import com.regin.starving.core.location.LocationServiceIsNotAvailableException
 import com.regin.starving.core.location.LocationWithZoom
-import com.regin.starving.data.api.response.VenueLocation
-import com.regin.starving.data.api.response.VenueResponse
-import com.regin.starving.data.repository.PoiRepository
+import com.regin.starving.data.api.Api
+import com.regin.starving.data.api.response.PoiResponse
 import com.regin.starving.di.testAppModule
 import com.regin.starving.di.testDataModule
 import com.regin.starving.domain.domainModule
+import com.regin.starving.source.PoiResponseSucessSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -28,6 +28,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ArgumentsSource
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.test.KoinTest
@@ -46,7 +48,14 @@ class ExploreViewModelTest : KoinTest {
         Dispatchers.setMain(testDispatcher)
 
         startKoin {
-            modules(listOf(testAppModule, testDataModule, domainModule(), exploreModule))
+            modules(
+                listOf(
+                    testDataModule,
+                    testAppModule,
+                    domainModule(),
+                    exploreModule
+                )
+            )
         }
     }
 
@@ -60,7 +69,6 @@ class ExploreViewModelTest : KoinTest {
     @DisplayName("Load my location with known location")
     fun loadMyLocationWithKnownLocation() = runBlockingTest {
         val fakeLocation = Location(0.0, 1.0)
-
         declareMock<LocationProvider> {
             runBlocking { given(lastKnownLocation()).willReturn(fakeLocation) }
         }
@@ -122,30 +130,13 @@ class ExploreViewModelTest : KoinTest {
         job.cancel()
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(PoiResponseSucessSource::class)
     @DisplayName("Load pois without errors")
-    fun loadPoisWithoutErrors() = runBlockingTest {
-        val locationWithZoom = LocationWithZoom(
-            Location(
-                latitude = 5.0,
-                longitude = 5.0
-            ),
-            zoom = 12f
-        )
-
-        val result = listOf(
-            VenueResponse(
-                "id", "fakeName", VenueLocation(
-                    lat = 5.0,
-                    lng = 5.0,
-                    address = "test"
-                )
-            )
-        )
-
-        declareMock<PoiRepository> {
+    fun loadPoisWithoutErrors(poiResponse: PoiResponse) = runBlockingTest {
+        declareMock<Api> {
             runBlocking {
-                given(loadPoi(any(), any(), any())).willReturn(result)
+                given(loadPoi(any(), any(), any(), any(), any())).willReturn(poiResponse)
             }
         }
 
@@ -159,7 +150,7 @@ class ExploreViewModelTest : KoinTest {
             { assertTrue(values[0].pois.isEmpty()) }
         )
 
-        viewModel.dispatchEvent(Event.LoadPoi(locationWithZoom))
+        viewModel.dispatchEvent(Event.LoadPoi(LocationWithZoom(Location(0.0, 0.0), 12f)))
 
         assertAll(
             { assertTrue(values[1].isLoading) },
@@ -185,9 +176,9 @@ class ExploreViewModelTest : KoinTest {
             zoom = 12f
         )
 
-        declareMock<PoiRepository> {
+        declareMock<Api> {
             runBlocking {
-                given(loadPoi(any(), any(), any())).willThrow(RuntimeException())
+                given(loadPoi(any(), any(), any(), any(), any())).willThrow(RuntimeException())
             }
         }
 

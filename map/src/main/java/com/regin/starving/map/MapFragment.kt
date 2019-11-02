@@ -40,7 +40,7 @@ class MapFragment : Fragment(R.layout.fragment_map), MapView {
         }
     }
 
-    override fun listenToMap(): Flow<LocationWithZoom> {
+    override fun listenCameraChanges(): Flow<LocationWithZoom> {
         return callbackFlow {
             googleMapFragment.getMapAsync { map ->
                 val listener = GoogleMap.OnCameraMoveListener {
@@ -62,7 +62,7 @@ class MapFragment : Fragment(R.layout.fragment_map), MapView {
         }
     }
 
-    override fun listenToPoiClick(): Flow<Poi> {
+    override fun listenPoiClicks(): Flow<Poi> {
         return callbackFlow {
             googleMapFragment.getMapAsync {
                 it.setOnInfoWindowClickListener(clusterManager)

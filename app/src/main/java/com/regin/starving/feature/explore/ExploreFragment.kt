@@ -55,12 +55,12 @@ class ExploreFragment : BaseFragment(R.layout.fragment_explore) {
         observeViewState()
         observeSideEffects()
 
-        mapView.listenToMap()
+        mapView.listenCameraChanges()
             .debounce(TimeUnit.SECONDS.toMillis(1))
             .onEach { viewModel.dispatchEvent(Event.LoadPoi(it)) }
             .launchIn(viewScope)
 
-        mapView.listenToPoiClick()
+        mapView.listenPoiClicks()
             .debounce(TimeUnit.MILLISECONDS.toMillis(250))
             .onEach {
                 val directions = PoiDetailsFragmentArgs(it).toBundle()

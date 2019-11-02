@@ -49,7 +49,7 @@ object Libraries {
         const val kotlinSerializationRuntime = "0.11.1"
 
         const val map = "17.0.0"
-        const val mapUtil = "0.5"
+        const val mapUtil = "0.6.2"
         const val location = "17.0.0"
 
         const val runtimePermission = "1.1.1"

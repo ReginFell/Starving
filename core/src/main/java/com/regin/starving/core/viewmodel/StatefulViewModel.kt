@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 
 @Suppress("EXPERIMENTAL_API_USAGE")
-abstract class StatefulViewModel<VS, E, SE> : ViewModel() {
+abstract class StatefulViewModel<VS, A, SE> : ViewModel() {
 
     abstract val defaultViewState: VS
 
@@ -21,11 +21,11 @@ abstract class StatefulViewModel<VS, E, SE> : ViewModel() {
     private val _sideEffects = BroadcastChannel<SE>(Channel.BUFFERED)
     val sideEffects: Flow<SE> get() = _sideEffects.openSubscription().consumeAsFlow()
 
-    private val _events = Channel<E>(Channel.BUFFERED)
-    val events get() = _events
+    private val _actions = Channel<A>(Channel.BUFFERED)
+    val actions get() = _actions
 
-    fun dispatchEvent(event: E) {
-        events.offer(event)
+    fun dispatchAction(action: A) {
+        actions.offer(action)
     }
 
     fun dispatchSideEffect(sideEffect: SE) {

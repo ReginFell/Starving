@@ -62,7 +62,7 @@ class ExploreFragment : BaseFragment(R.layout.fragment_explore) {
 
         mapView.listenCameraChanges()
             .debounce(TimeUnit.SECONDS.toMillis(1))
-            .onEach { viewModel.dispatchEvent(Event.LoadPoi(it)) }
+            .onEach { viewModel.dispatchAction(Action.LoadPoi(it)) }
             .launchIn(viewScope)
 
         mapView.listenPoiClicks()
@@ -98,7 +98,7 @@ class ExploreFragment : BaseFragment(R.layout.fragment_explore) {
         viewScope.launch {
             try {
                 askPermission()
-                viewModel.dispatchEvent(Event.LoadMyLocation)
+                viewModel.dispatchAction(Action.LoadMyLocation)
             } catch (e: PermissionException) {
                 Toast.makeText(
                     requireContext(),

@@ -77,7 +77,7 @@ class ExploreViewModelTest : KoinTest {
         val job = launch {
             viewModel.sideEffects.collect { values.add(it) }
         }
-        viewModel.dispatchEvent(Event.LoadMyLocation)
+        viewModel.dispatchAction(Action.LoadMyLocation)
 
         assertAll(
             { assertTrue(values[0] is SideEffect.FocusOnMyLocation) },
@@ -97,7 +97,7 @@ class ExploreViewModelTest : KoinTest {
         val job = launch {
             viewModel.sideEffects.collect { values.add(it) }
         }
-        viewModel.dispatchEvent(Event.LoadMyLocation)
+        viewModel.dispatchAction(Action.LoadMyLocation)
 
         assertAll(
             { assertTrue(values[0] is SideEffect.LocationIsUnknown) }
@@ -121,7 +121,7 @@ class ExploreViewModelTest : KoinTest {
         val job = launch {
             viewModel.sideEffects.collect { values.add(it) }
         }
-        viewModel.dispatchEvent(Event.LoadMyLocation)
+        viewModel.dispatchAction(Action.LoadMyLocation)
 
         assertAll(
             { assertTrue(values[0] is SideEffect.LocationServiceIsUnavailable) }
@@ -150,7 +150,7 @@ class ExploreViewModelTest : KoinTest {
             { assertTrue(values[0].pois.isEmpty()) }
         )
 
-        viewModel.dispatchEvent(Event.LoadPoi(LocationWithZoom(Location(0.0, 0.0), 12f)))
+        viewModel.dispatchAction(Action.LoadPoi(LocationWithZoom(Location(0.0, 0.0), 12f)))
 
         assertAll(
             { assertTrue(values[1].isLoading) },
@@ -197,7 +197,7 @@ class ExploreViewModelTest : KoinTest {
             { assertTrue(values[0].pois.isEmpty()) }
         )
 
-        viewModel.dispatchEvent(Event.LoadPoi(locationWithZoom))
+        viewModel.dispatchAction(Action.LoadPoi(locationWithZoom))
 
         assertAll(
             { assertTrue(values[1].isLoading) },
